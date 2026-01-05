@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="/">Admin Panel</a>
+      <div>
+        <a class="btn btn-outline-light btn-sm" href="/admin/logout">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <h3 class="mb-4">Students Ranking (by 10+2 Total Marks)</h3>
+
+    <% if (messages.success) { %>
+      <div class="alert alert-success"><%= messages.success[0] %></div>
+    <% } %>
+    <% if (messages.error) { %>
+      <div class="alert alert-danger"><%= messages.error[0] %></div>
+    <% } %>
+
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered align-middle">
+        <thead class="table-primary">
+          <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Total (10+2)</th>
+            <th>Branch Choices</th>
+            <th>Allocated Branch</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% students.forEach((s, idx) => { %>
+            <tr>
+              <td><%= idx + 1 %></td>
+              <td><%= s.name %></td>
+              <td><%= s.email %></td>
+              <td><%= s.total %></td>
+              <td><%= s.branch_choice1 || '-' %> / <%= s.branch_choice2 || '-' %></td>
+              <td><%= s.allocated_branch || '-' %></td>
+              <td>
+                <!-- Branch Allocation Form -->
+                <form class="d-inline" method="post" action="/admin/allocate">
+                  <input type="hidden" name="student_id" value="<%= s.id %>">
+                  <select class="form-select form-select-sm d-inline w-auto me-2" name="branch" required>
+                    <option value="">Select Branch</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Information Technology">Information Technology</option>
+                    <option value="Electronics and Communication">Electronics and Communication</option>
+                    <option value="Electrical Engineering">Electrical Engineering</option>
+                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                    <option value="Civil Engineering">Civil Engineering</option>
+                  </select>
+                  <button class="btn btn-sm btn-success">Allocate</button>
+                </form>
+
+                <!-- Payment Verification -->
+                <% if (s.payment_receipt && !s.payment_verified) { %>
+                  <form class="d-inline" method="post" action="/admin/verify_payment">
+                    <input type="hidden" name="student_id" value="<%= s.id %>">
+                    <button class="btn btn-sm btn-primary">Verify Payment & Generate Offer</button>
+                  </form>
+                  <a class="btn btn-sm btn-outline-secondary" href="/uploads/<%= s.payment_receipt %>" target="_blank">View Receipt</a>
+                <% } else if (s.payment_verified) { %>
+                  <span class="badge bg-success">Payment Verified</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
+
