@@ -1,0 +1,13 @@
+h3 {
+  color: #0f172a;
+  margin-bottom: 1rem;
+}
+
+.table td form {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+select {
+  width: 180px;
+}
