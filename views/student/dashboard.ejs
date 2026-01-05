@@ -1,0 +1,150 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Student Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="/">Counseling Portal</a>
+      <div>
+        <a class="btn btn-outline-light btn-sm" href="/student/logout">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <h3>Hello, <%= student.name %> 👋</h3>
+
+    <% if (messages.success) { %>
+      <div class="alert alert-success"><%= messages.success[0] %></div>
+    <% } %>
+    <% if (messages.error) { %>
+      <div class="alert alert-danger"><%= messages.error[0] %></div>
+    <% } %>
+
+    <div class="row">
+      <!-- Left Column -->
+      <div class="col-md-6">
+        <!-- Personal Info & Marks -->
+        <div class="card p-3 mb-3 shadow-sm">
+          <h5 class="mb-3">Personal Info & Marks</h5>
+          <form method="post" action="/student/details">
+            <div class="mb-2">
+              <label class="form-label">Full Name</label>
+              <input class="form-control" name="name" value="<%= student.name %>" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Phone Number</label>
+              <input class="form-control" name="phone" value="<%= student.phone || '' %>">
+            </div>
+
+            <h6 class="mt-3">High School Marks</h6>
+            <div class="row g-2">
+              <div class="col"><input class="form-control" name="hs_math" placeholder="Math" value="<%= (student.highschool_marks_json && JSON.parse(student.highschool_marks_json).Math) || '' %>"></div>
+              <div class="col"><input class="form-control" name="hs_science" placeholder="Science" value="<%= (student.highschool_marks_json && JSON.parse(student.highschool_marks_json).Science) || '' %>"></div>
+              <div class="col"><input class="form-control" name="hs_english" placeholder="English" value="<%= (student.highschool_marks_json && JSON.parse(student.highschool_marks_json).English) || '' %>"></div>
+              <div class="col"><input class="form-control" name="hs_hindi" placeholder="Hindi" value="<%= (student.highschool_marks_json && JSON.parse(student.highschool_marks_json).Hindi) || '' %>"></div>
+            </div>
+
+            <h6 class="mt-3">10+2 Marks</h6>
+            <div class="row g-2">
+              <div class="col"><input class="form-control" name="plus_physics" placeholder="Physics" value="<%= (student.plus2_marks_json && JSON.parse(student.plus2_marks_json).Physics) || '' %>"></div>
+              <div class="col"><input class="form-control" name="plus_chem" placeholder="Chemistry" value="<%= (student.plus2_marks_json && JSON.parse(student.plus2_marks_json).Chemistry) || '' %>"></div>
+              <div class="col"><input class="form-control" name="plus_math" placeholder="Math" value="<%= (student.plus2_marks_json && JSON.parse(student.plus2_marks_json).Math) || '' %>"></div>
+            </div>
+
+            <h6 class="mt-3">Branch Choices</h6>
+            <div class="mb-2">
+              <label class="form-label">First Choice</label>
+              <select class="form-select" name="choice1" required>
+                <option value="">Select First Choice</option>
+                <option value="Computer Science" <%= student.branch_choice1 === 'Computer Science' ? 'selected' : '' %>>Computer Science</option>
+                <option value="Information Technology" <%= student.branch_choice1 === 'Information Technology' ? 'selected' : '' %>>Information Technology</option>
+                <option value="Electronics and Communication" <%= student.branch_choice1 === 'Electronics and Communication' ? 'selected' : '' %>>Electronics and Communication</option>
+                <option value="Electrical Engineering" <%= student.branch_choice1 === 'Electrical Engineering' ? 'selected' : '' %>>Electrical Engineering</option>
+                <option value="Mechanical Engineering" <%= student.branch_choice1 === 'Mechanical Engineering' ? 'selected' : '' %>>Mechanical Engineering</option>
+                <option value="Civil Engineering" <%= student.branch_choice1 === 'Civil Engineering' ? 'selected' : '' %>>Civil Engineering</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Second Choice</label>
+              <select class="form-select" name="choice2" required>
+                <option value="">Select Second Choice</option>
+                <option value="Computer Science" <%= student.branch_choice2 === 'Computer Science' ? 'selected' : '' %>>Computer Science</option>
+                <option value="Information Technology" <%= student.branch_choice2 === 'Information Technology' ? 'selected' : '' %>>Information Technology</option>
+                <option value="Electronics and Communication" <%= student.branch_choice2 === 'Electronics and Communication' ? 'selected' : '' %>>Electronics and Communication</option>
+                <option value="Electrical Engineering" <%= student.branch_choice2 === 'Electrical Engineering' ? 'selected' : '' %>>Electrical Engineering</option>
+                <option value="Mechanical Engineering" <%= student.branch_choice2 === 'Mechanical Engineering' ? 'selected' : '' %>>Mechanical Engineering</option>
+                <option value="Civil Engineering" <%= student.branch_choice2 === 'Civil Engineering' ? 'selected' : '' %>>Civil Engineering</option>
+              </select>
+            </div>
+
+            <button class="btn btn-primary">Save Details</button>
+          </form>
+        </div>
+
+        <!-- Allocation & Payment Section -->
+        <div class="card p-3 shadow-sm">
+          <h5 class="mb-3">Allocation & Payment</h5>
+          <p>Allocated Branch:
+            <strong><%= student.allocated_branch || 'Not allocated yet' %></strong>
+          </p>
+
+          <% if (student.allocated_branch && !student.accepted_allocation) { %>
+            <form method="post" action="/student/accept_allocation">
+              <button class="btn btn-success">Accept Allocation</button>
+            </form>
+          <% } %>
+
+          <% if (student.accepted_allocation && !student.payment_receipt) { %>
+            <form method="post" action="/student/upload_receipt" enctype="multipart/form-data" class="mt-3">
+              <div class="mb-2">
+                <input type="file" name="receipt" class="form-control" required>
+              </div>
+              <button class="btn btn-primary">Upload Receipt</button>
+            </form>
+          <% } %>
+
+          <% if (student.payment_receipt) { %>
+            <p class="mt-2">Receipt uploaded. Verification status:
+              <strong><%= student.payment_verified ? 'Verified ✅' : 'Pending ⏳' %></strong>
+            </p>
+          <% } %>
+
+          <% if (student.offer_generated) { %>
+            <a class="btn btn-outline-primary mt-2" href="/student/offer" target="_blank">Download Offer Letter</a>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="col-md-6">
+        <div class="card p-3 shadow-sm">
+          <h5 class="mb-3">Your Details Summary</h5>
+          <p><strong>Name:</strong> <%= student.name %></p>
+          <p><strong>Email:</strong> <%= student.email %></p>
+          <p><strong>Phone:</strong> <%= student.phone || '-' %></p>
+
+          <h6>10+2 Marks</h6>
+          <ul>
+            <li>Physics: <%= (student.plus2_marks_json && JSON.parse(student.plus2_marks_json).Physics) || '-' %></li>
+            <li>Chemistry: <%= (student.plus2_marks_json && JSON.parse(student.plus2_marks_json).Chemistry) || '-' %></li>
+            <li>Math: <%= (student.plus2_marks_json && JSON.parse(student.plus2_marks_json).Math) || '-' %></li>
+          </ul>
+
+          <h6>Branch Choices</h6>
+          <ul>
+            <li>Choice 1: <%= student.branch_choice1 || '-' %></li>
+            <li>Choice 2: <%= student.branch_choice2 || '-' %></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
